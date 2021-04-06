@@ -18,17 +18,22 @@ func main() {
 	ph := handlers.NewProducts(l)
 
 	sm := mux.NewRouter()
-	getRouter := sm.Methods("GET").Subrouter()
+	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", ph.GetProducts)
 
-	// sm.Handle("/products", ph)
+	putRouter := sm.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProduct)
+
+	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/", ph.AddProduct)
 
 	s := &http.Server{
 		Addr:         ":9090",
 		Handler:      sm,
 		ErrorLog:     l,
-		IdleTimeout:  120 * time.Second,
 		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 1 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 
 	go func() {
